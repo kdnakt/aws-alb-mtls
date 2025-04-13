@@ -1,17 +1,24 @@
-// import * as cdk from 'aws-cdk-lib';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as AwsAlbMtls from '../lib/aws-alb-mtls-stack';
+import * as cdk from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import * as AwsAlbMtls from '../lib/aws-alb-mtls-stack';
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/aws-alb-mtls-stack.ts
-test('SQS Queue Created', () => {
-//   const app = new cdk.App();
-//     // WHEN
-//   const stack = new AwsAlbMtls.AwsAlbMtlsStack(app, 'MyTestStack');
-//     // THEN
-//   const template = Template.fromStack(stack);
+test('ALB with mTLS is properly configured', () => {
+  const app = new cdk.App();
+  // WHEN
+  const stack = new AwsAlbMtls.AwsAlbMtlsStack(app, 'MyTestStack');
+  // THEN
+  const template = Template.fromStack(stack);
 
-//   template.hasResourceProperties('AWS::SQS::Queue', {
-//     VisibilityTimeout: 300
-//   });
+  // ALBリソースが存在することを確認
+  template.resourceCountIs('AWS::ElasticLoadBalancingV2::LoadBalancer', 1);
+  
+  // mTLS設定が正しいことを確認
+  template.hasResourceProperties('AWS::ElasticLoadBalancingV2::Listener', {
+    Protocol: 'HTTPS',
+    Port: 443,
+    SslPolicy: 'ELBSecurityPolicy-TLS13-1-2-2021-06',
+  });
+  
+  // TrustStoreが作成されていることを確認
+  template.resourceCountIs('AWS::ElasticLoadBalancingV2::TrustStore', 1);
 });
