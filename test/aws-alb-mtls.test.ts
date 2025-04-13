@@ -17,6 +17,10 @@ test('ALB with mTLS is properly configured', () => {
     Protocol: 'HTTPS',
     Port: 443,
     SslPolicy: 'ELBSecurityPolicy-TLS13-1-2-2021-06',
+    MutualAuthentication: {
+      IgnoreClientCertificateExpiry: false,
+      Mode: 'verify',
+    }
   });
   
   // TrustStoreが作成されていることを確認
